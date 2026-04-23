@@ -1,0 +1,34 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+<ItemGroup>
+  <ReframeworkDependencies Include="C:\Program Files (x86)\Steam\steamapps\common\PRAGMATA\reframework\plugins\managed\dependencies\*.dll" />
+  <GeneratedDependencies Include="C:\Program Files (x86)\Steam\steamapps\common\PRAGMATA\reframework\plugins\managed\generated\*.dll" />
+</ItemGroup>
+
+<ItemGroup>
+  <Reference Include="@(ReframeworkDependencies)" />
+  <Reference Include="@(GeneratedDependencies)" />
+</ItemGroup>
+
+<ItemGroup>
+  <Reference Include="REFramework.NET">
+    <HintPath>C:\Program Files (x86)\Steam\steamapps\common\PRAGMATA\reframework\plugins\REFramework.NET.dll</HintPath>
+  </Reference>
+</ItemGroup>
+
+<Target Name="CopyAllOutputs" AfterTargets="Build">
+  <ItemGroup>
+    <BuildOutput Include="$(OutputPath)\**\NeuroPragma.dll" />
+  </ItemGroup>
+  <Copy
+    SourceFiles="@(BuildOutput)"
+    DestinationFolder="C:\Program Files (x86)\Steam\steamapps\common\PRAGMATA\reframework\plugins\managed\" />
+</Target>
+
+</Project>
