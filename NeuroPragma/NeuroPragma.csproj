@@ -4,10 +4,12 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
+  
 <ItemGroup>
-  <ReframeworkDependencies Include="C:\Program Files (x86)\Steam\steamapps\common\PRAGMATA\reframework\plugins\managed\dependencies\*.dll" />
+  <ReframeworkDependencies Include="C:\Program Files (x86)\Steam\steamapps\common\PRAGMATA\reframework\plugins\managed\dependencies\AssemblyGenerator.dll" />
   <GeneratedDependencies Include="C:\Program Files (x86)\Steam\steamapps\common\PRAGMATA\reframework\plugins\managed\generated\*.dll" />
 </ItemGroup>
 
@@ -22,13 +24,17 @@
   </Reference>
 </ItemGroup>
 
+<ItemGroup>
+  <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+</ItemGroup>
+
 <Target Name="CopyAllOutputs" AfterTargets="Build">
   <ItemGroup>
     <BuildOutput Include="$(OutputPath)\**\NeuroPragma.dll" />
   </ItemGroup>
-  <Copy
-    SourceFiles="@(BuildOutput)"
-    DestinationFolder="C:\Program Files (x86)\Steam\steamapps\common\PRAGMATA\reframework\plugins\managed\" />
+  <Copy SourceFiles="@(BuildOutput)" DestinationFolder="C:\Program Files (x86)\Steam\steamapps\common\PRAGMATA\reframework\plugins\managed\" />
+  <!-- Copy necessary dependencies -->
+  <Copy SourceFiles="$(OutputPath)Newtonsoft.Json.dll" DestinationFolder="C:\Program Files (x86)\Steam\steamapps\common\PRAGMATA\reframework\plugins\managed\dependencies\" />
 </Target>
 
 </Project>
