@@ -29,17 +29,6 @@ public class NeuroPragma
     }
 
     /// <summary>
-    /// Sends the dialog as context
-    /// </summary>
-    [MethodHook(typeof(app.gui.ui2010), nameof(app.gui.ui2010.push), MethodHookType.Pre)]
-    static PreHookResult LogDialog(Span<ulong> args)
-    {
-        var param = ManagedObject.ToManagedObject(args[2])?.As<ui2010.OpenParam>(); ;
-        NeuroSDKCsharp.Messages.Outgoing.Context.Send($"{MessageManager.getName(param.SpeakerNameMsgId)}: {MessageManager.getMessage(param.BodyMsgId)}");
-        return PreHookResult.Continue;
-    }
-
-    /// <summary>
     /// Registers the use auto hack action when a puzzle is started
     /// </summary>
     [MethodHook(typeof(app.PlayerPuzzleControlDriver), nameof(app.PlayerPuzzleControlDriver.startPuzzle), MethodHookType.Pre)]
