@@ -34,7 +34,7 @@ public class Context
     [MethodHook(typeof(app.PlayerUpdater), nameof(app.PlayerUpdater.onDead), MethodHookType.Pre)]
     static PreHookResult OnDead(Span<ulong> args)
     {
-        NeuroSDKCsharp.Messages.Outgoing.Context.Send($"Player died");
+        NeuroSDKCsharp.Messages.Outgoing.Context.Send($"Hugh died");
         return PreHookResult.Continue;
-    }   
+    }
 }

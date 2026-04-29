@@ -1,7 +1,6 @@
 ﻿namespace NeuroPragma;
 
 using app;
-using app.gui;
 using NeuroSDKCsharp;
 using NeuroSDKCsharp.Actions;
 using NeuroSDKCsharp.Websocket;
@@ -58,5 +57,45 @@ public class NeuroPragma
     static PreHookResult hackingGaugeUnitReduce(Span<ulong> args)
     {
         return PreHookResult.Skip;
+    }
+
+
+    /// <summary>
+    /// Reads the grid of the hacking puzzle.
+    /// 
+    /// TODO: check if all GridType are handled correctly, send as action to Neuro
+    /// </summary>
+    [MethodHook(typeof(app.PuzzleSnake), nameof(app.PuzzleSnake.onStartPuzzle), MethodHookType.Pre)]
+    static PreHookResult readPuzzleGrid(Span<ulong> args)
+    {
+        API.LogInfo($"Snake puzzle started");
+        PuzzleSnake puzzleSnake = ManagedObject.ToManagedObject(args[1])?.As<PuzzleSnake>()!;
+        PuzzleSnake.Grid_Array1D_Array1D grid2D = puzzleSnake._GridAccessor._GridController._ActualGrid;
+        string puzzle = "";
+        API.LogInfo($"Grid size: {puzzleSnake.GRID_ACTUAL_SIZE_X} x {puzzleSnake.GRID_ACTUAL_SIZE_Y}");
+        for (int j = 0; j < puzzleSnake.GRID_ACTUAL_SIZE_Y; j++)
+        {
+            for (int i = 0; i < puzzleSnake.GRID_ACTUAL_SIZE_X; i++)
+            {
+                PuzzleSnake.Grid field = grid2D.Get(i).Get(j);
+                // Ignore finish blow fields if finish blow is not ready
+                if (field.GridType == PuzzleSnakeGridType.None || field.IsHide)
+                {
+                    puzzle += ". ";
+                }
+                else if (!field.canEnter())
+                {
+                    puzzle += "X ";
+                }
+                else
+                {
+                    puzzle += PuzzleSnakeGridType.getName(field.GridType)[0] + " ";
+                }
+            }
+            puzzle += "\n";
+        }
+        API.LogInfo($"Puzzle:\n{puzzle}");
+
+        return PreHookResult.Continue;
     }
 }
