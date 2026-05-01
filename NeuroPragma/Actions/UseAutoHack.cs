@@ -1,5 +1,3 @@
-
-using System.Text;
 using app;
 using NeuroSDKCsharp.Actions;
 using NeuroSDKCsharp.Json;

@@ -34,7 +34,12 @@ public class NeuroPragma
     static PreHookResult playerPuzzleControlDriverStartPuzzle(Span<ulong> args)
     {
         var puzzleControl = ManagedObject.ToManagedObject(args[1])?.As<PlayerPuzzleControlDriver>();
-        NeuroActionHandler.RegisterActions(new UseAutoHack(puzzleControl!));
+        var puzzleUnit = ManagedObject.ToManagedObject(args[2])?.As<PuzzleUnit>();
+        if (puzzleUnit.MyPuzzleSnake != null)
+        {                    
+            NeuroSDKCsharp.Messages.Outgoing.Context.Send($"Solve the following puzzle manually by using the \"hack_enemy\" action or automatically using the \"use_auto_hack\" action:\n{getSnakePuzzleGrid(puzzleUnit.MyPuzzleSnake)}", false);
+            NeuroActionHandler.RegisterActions(new UseAutoHack(puzzleControl!), new HackEnemy(puzzleControl, puzzleUnit));
+        }        
         return PreHookResult.Continue;
     }
 
@@ -45,7 +50,7 @@ public class NeuroPragma
     [MethodHook(typeof(app.PuzzleUnit), nameof(app.PuzzleUnit.finishPuzzle), MethodHookType.Pre)]
     static PreHookResult PuzzleUnitFinishPuzzle(Span<ulong> args)
     {
-        NeuroActionHandler.UnregisterActions("use_auto_hack");
+        NeuroActionHandler.UnregisterActions("use_auto_hack", "hack_enemy");
         return PreHookResult.Continue;
     }
 
@@ -61,15 +66,12 @@ public class NeuroPragma
 
 
     /// <summary>
-    /// Reads the grid of the hacking puzzle.
+    /// Reads the grid of the snake puzzle.
     /// 
-    /// TODO: check if all GridType are handled correctly, send as action to Neuro
+    /// TODO: check if all GridType are handled correctly
     /// </summary>
-    [MethodHook(typeof(app.PuzzleSnake), nameof(app.PuzzleSnake.onStartPuzzle), MethodHookType.Pre)]
-    static PreHookResult readPuzzleGrid(Span<ulong> args)
+    static string getSnakePuzzleGrid(PuzzleSnake puzzleSnake)
     {
-        API.LogInfo($"Snake puzzle started");
-        PuzzleSnake puzzleSnake = ManagedObject.ToManagedObject(args[1])?.As<PuzzleSnake>()!;
         PuzzleSnake.Grid_Array1D_Array1D grid2D = puzzleSnake._GridAccessor._GridController._ActualGrid;
         string puzzle = "";
         API.LogInfo($"Grid size: {puzzleSnake.GRID_ACTUAL_SIZE_X} x {puzzleSnake.GRID_ACTUAL_SIZE_Y}");
@@ -95,7 +97,6 @@ public class NeuroPragma
             puzzle += "\n";
         }
         API.LogInfo($"Puzzle:\n{puzzle}");
-
-        return PreHookResult.Continue;
+        return puzzle;
     }
 }
