@@ -73,8 +73,9 @@ public class NeuroPragma
     static string getSnakePuzzleGrid(PuzzleSnake puzzleSnake)
     {
         PuzzleSnake.Grid_Array1D_Array1D grid2D = puzzleSnake._GridAccessor._GridController._ActualGrid;
-        string puzzle = "";
+        string puzzle = $"Grid size: {puzzleSnake.GRID_ACTUAL_SIZE_X} x {puzzleSnake.GRID_ACTUAL_SIZE_Y}\n";
         API.LogInfo($"Grid size: {puzzleSnake.GRID_ACTUAL_SIZE_X} x {puzzleSnake.GRID_ACTUAL_SIZE_Y}");
+        HashSet<String> gridTypes = new HashSet<string>();
         for (int j = 0; j < puzzleSnake.GRID_ACTUAL_SIZE_Y; j++)
         {
             for (int i = 0; i < puzzleSnake.GRID_ACTUAL_SIZE_X; i++)
@@ -85,18 +86,21 @@ public class NeuroPragma
                 {
                     puzzle += ". ";
                 }
-                else if (!field.canEnter())
+                else if (!field.canEnter() || field.GridType == PuzzleSnakeGridType.Obstacle || field.GridType == PuzzleSnakeGridType.Impassable)
                 {
                     puzzle += "X ";
                 }
                 else
                 {
+                    gridTypes.Add(PuzzleSnakeGridType.getName(field.GridType));
                     puzzle += PuzzleSnakeGridType.getName(field.GridType)[0] + " ";
                 }
             }
             puzzle += "\n";
         }
         API.LogInfo($"Puzzle:\n{puzzle}");
+        API.LogInfo($"Grid Types: {string.Join(", ", gridTypes)}");
+        puzzle += $"Grid Types: {string.Join(", ", gridTypes)}\n";
         return puzzle;
     }
 }
