@@ -9,6 +9,9 @@ using REFrameworkNET.Attributes;
 
 public class NeuroPragma
 {
+    private static PlayerActionControlDriver? _playerActionControlDriver;
+
+
     [PluginEntryPoint]
     public static void Main()
     {
@@ -102,5 +105,22 @@ public class NeuroPragma
         API.LogInfo($"Grid Types: {string.Join(", ", gridTypes)}");
         puzzle += $"Grid Types: {string.Join(", ", gridTypes)}\n";
         return puzzle;
+    }
+
+    [MethodHook(typeof(app.PlayerActionControlDriver), nameof(app.PlayerActionControlDriver.onStart), MethodHookType.Pre)]
+    static PreHookResult PlayerActionControlDriverOnStart(Span<ulong> args)
+    {
+        _playerActionControlDriver = ManagedObject.ToManagedObject(args[1])?.As<PlayerActionControlDriver>();
+        API.LogInfo("PlayerActionControlDriver registered");
+        NeuroActionHandler.RegisterActions(new Scan(_playerActionControlDriver!._ActionHandler.Scan));
+        return PreHookResult.Continue;
+    }
+
+    [MethodHook(typeof(app.PlayerActionControlDriver), nameof(app.PlayerActionControlDriver.onDestroy), MethodHookType.Pre)]
+    static PreHookResult PlayerActionControlDriverOnDestroy(Span<ulong> args)
+    {
+        _playerActionControlDriver = null;
+        API.LogInfo("PlayerActionControlDriver unregistered");
+        return PreHookResult.Continue;
     }
 }
