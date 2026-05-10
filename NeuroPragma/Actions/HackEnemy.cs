@@ -65,10 +65,7 @@ public class HackEnemy : NeuroAction<string[]>
         foreach (string direction in directions!)
         {
             Task.Delay(100).Wait();
-            //Int2 move = Int2.Zero;
             Int2 move = _puzzleSnake._CurrentUnit.Position;
-            //var input = guiInputManager._DummyTriggerRequests;
-            //input.Clear();
             switch (direction)
             {
                 case "U":
@@ -89,9 +86,7 @@ public class HackEnemy : NeuroAction<string[]>
             if (_puzzleSnake._GridAccessor[move].GridType == PuzzleSnakeGridType.Goal)
             {
                 API.LogInfo("Goal reached!");
-                //_puzzleControl.requestOverrideFinishPuzzle(_puzzleUnit);
-                // TODO: does not work, how to finish puzzle?
-                _puzzleSnake.onFinishPuzzle();
+                _puzzleSnake._RequestForceSuccess = true;
                 completed = true;
                 break;
             }
@@ -99,6 +94,7 @@ public class HackEnemy : NeuroAction<string[]>
         if (!completed)
         {
             API.LogInfo("Directions executed but goal not reached");
+            _puzzleSnake.reset();
         }
 
         return Task.CompletedTask;
