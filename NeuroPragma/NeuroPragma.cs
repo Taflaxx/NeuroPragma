@@ -6,6 +6,7 @@ using NeuroSDKCsharp.Actions;
 using NeuroSDKCsharp.Websocket;
 using REFrameworkNET;
 using REFrameworkNET.Attributes;
+using REFrameworkNET.Callbacks;
 
 public class NeuroPragma
 {
@@ -15,19 +16,18 @@ public class NeuroPragma
     [PluginEntryPoint]
     public static void Main()
     {
-        // necessary to send the enqueued messages
-        // TODO: fix/impove
-        Task.Run(async () =>
-        {
-            while (true)
-            {
-                await Task.Delay(16);
-                WebsocketHandler.Instance?.Update();
-            }
-        });
         API.LogInfo("NeuroPragma started");
         SdkSetup.Initialize("NeuroPragma", "ws://localhost:8000");
         NeuroSDKCsharp.Messages.Outgoing.Context.Send("Pragmata was started");
+    }
+
+    /// <summary>
+    /// Runs every frame before the engine update
+    /// </summary>
+    [Callback(typeof(UpdateBehavior), CallbackType.Pre)]
+    public static void OnUpdate()
+    {
+        WebsocketHandler.Instance?.Update();
     }
 
     /// <summary>
