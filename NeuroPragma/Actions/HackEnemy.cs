@@ -1,5 +1,4 @@
 using app;
-using app.hid;
 using NeuroSDKCsharp.Actions;
 using NeuroSDKCsharp.Json;
 using NeuroSDKCsharp.Websocket;

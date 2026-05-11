@@ -110,9 +110,19 @@ public class NeuroPragma
     [MethodHook(typeof(app.PlayerActionControlDriver), nameof(app.PlayerActionControlDriver.onStart), MethodHookType.Pre)]
     static PreHookResult PlayerActionControlDriverOnStart(Span<ulong> args)
     {
+        EnvironmentSceneManager sm = API.GetManagedSingletonT<app.EnvironmentSceneManager>();
+        // Check if we are in a valid scene to prevent registering actions in the main menu and the saferoom
+        if (sm._CurrentSceneID == null || sm._CurrentSceneID.Count == 0 || sm._CurrentSceneID[0] == 3062156525)
+        {
+            API.LogInfo("Not in a valid scene, actions will not be registered");
+            return PreHookResult.Continue;
+        }
+        API.LogInfo($"Loaded Scene: {sm._CurrentSceneID[0]}");
         _playerActionControlDriver = ManagedObject.ToManagedObject(args[1])?.As<PlayerActionControlDriver>();
         API.LogInfo("PlayerActionControlDriver registered");
-        NeuroActionHandler.RegisterActions(new Scan(_playerActionControlDriver!._ActionHandler.Scan));
+        NeuroActionHandler.RegisterActions(
+            new Scan(_playerActionControlDriver!._ActionHandler.Scan), 
+            new RepairKit(_playerActionControlDriver!));
         return PreHookResult.Continue;
     }
 
@@ -121,6 +131,7 @@ public class NeuroPragma
     {
         _playerActionControlDriver = null;
         API.LogInfo("PlayerActionControlDriver unregistered");
+        NeuroActionHandler.UnregisterActions("scan", "use_repair_kit");
         return PreHookResult.Continue;
     }
 }
